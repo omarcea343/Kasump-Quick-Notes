@@ -34,7 +34,7 @@ export function UserNav({
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10 rounded-full">
             <AvatarImage src={image} alt="@shadcn" />
-            <AvatarFallback>J</AvatarFallback>
+            <AvatarFallback>{name}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -53,7 +53,7 @@ export function UserNav({
             <DropdownMenuItem asChild key={index}>
               <Link
                 href={item.href}
-                className="w-full flex justify-between items-center"
+                className="w-full flex justify-between items-center cursor-pointer hover:bg-accent"
               >
                 {item.name}
                 <span>
@@ -66,7 +66,7 @@ export function UserNav({
         <DropdownMenuSeparator />
 
         <DropdownMenuItem
-          className="w-full justify-between items-center"
+          className="w-full justify-between items-center cursor-pointer hover:bg-accent"
           asChild
         >
           <LogoutLink>
