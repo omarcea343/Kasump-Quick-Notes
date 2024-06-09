@@ -12,9 +12,9 @@ Follow these steps to set up and run the School Manager App on your local develo
 
 1. Clone the repository:
 
-        git clone https://github.com/omarcea343/school-manager
+        git clone https://github.com/omarcea343/school-manager](https://github.com/omarcea343/Kasump-Quick-Notes
 
-        cd school-manager-app
+        cd kasump-quick-notes
       
 2. Install Dependencies:
 
