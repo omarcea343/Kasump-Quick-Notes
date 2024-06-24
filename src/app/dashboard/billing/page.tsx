@@ -1,11 +1,20 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import prisma from "@/lib/db";
 import { CheckCircle2 } from "lucide-react";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { getStripeSession, stripe } from "@/lib/stripe";
 import { redirect } from "next/navigation";
-import { StripeSubscriptionCreationButton } from "@/components/Submitbuttons";
+import {
+  StripePortal,
+  StripeSubscriptionCreationButton,
+} from "@/components/Submitbuttons";
 
 const featureItems = [
   { name: "Unlimited Notes" },
@@ -65,6 +74,17 @@ export default async function BillingPage() {
     return redirect(subscriptionUrl);
   }
 
+  async function createCustomerPotal() {
+    "use server";
+
+    const session = await stripe.billingPortal.sessions.create({
+      customer: data?.user.stripeCustomerId as string,
+      return_url: "http://localhost:3000/dashboard/billing",
+    });
+
+    return redirect(session.url);
+  }
+
   if (data?.status === "active") {
     return (
       <div className="grid items-start gap-8">
@@ -76,6 +96,22 @@ export default async function BillingPage() {
             </p>
           </div>
         </div>
+
+        <Card className="w-full lg:w-2/3">
+          <CardHeader>
+            <CardTitle>Edit Subscription</CardTitle>
+            <CardDescription>
+              Click on the button below, this will give you the opportunity to
+              change your pament details and view your statement at the same
+              time.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form action={createCustomerPotal}>
+              <StripePortal />
+            </form>
+          </CardContent>
+        </Card>
       </div>
     );
   }
