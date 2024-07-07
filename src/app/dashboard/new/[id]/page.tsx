@@ -11,12 +11,64 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import prisma from "@/lib/db";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { revalidatePath } from "next/cache";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function Dynamicoute() {
+async function getData({ userId, noteId }: { userId: string; noteId: string }) {
+  const data = await prisma.note.findUnique({
+    where: {
+      id: noteId,
+      userId: userId,
+    },
+    select: {
+      title: true,
+      description: true,
+      id: true,
+    },
+  });
+
+  return data;
+}
+
+export default async function Dynamicoute({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+  const data = await getData({ userId: user?.id as string, noteId: params.id });
+
+  async function postData(formData: FormData) {
+    "use server";
+
+    if (!user) throw new Error("Not Authorized");
+
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+
+    await prisma.note.update({
+      where: {
+        id: data?.id,
+        userId: user?.id,
+      },
+      data: {
+        description: description,
+        title: title,
+      },
+    });
+
+    revalidatePath("/dashboard");
+
+    return redirect("/dashboard");
+  }
+
   return (
     <Card>
-      <form>
+      <form action={postData}>
         <CardHeader>
           <CardTitle>Edit Note</CardTitle>
           <CardDescription>
@@ -31,6 +83,7 @@ export default function Dynamicoute() {
               type="text"
               name="title"
               placeholder="Title for your note"
+              defaultValue={data?.title}
             />
           </div>
 
@@ -40,6 +93,7 @@ export default function Dynamicoute() {
               name="description"
               placeholder="Describe your note as you want"
               required
+              defaultValue={data?.description}
             />
           </div>
         </CardContent>
